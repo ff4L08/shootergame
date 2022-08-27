@@ -143,9 +143,9 @@ while run:
             finish = True
             finishTextWin.draw(window)
         
-        # if playerScore < 0:
-        #     finish = True
-        #     finishTextLose.draw(window)
+        if playerScore < 0:
+            finish = True
+            finishTextLose.draw(window)
         
         display.update()
     
