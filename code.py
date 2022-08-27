@@ -17,7 +17,7 @@ class GameSprite(sprite.Sprite):
         sprite.Sprite.__init__(self)
     
         #every sprite must store the image property
-        self.image = transform.scale(image.load(player_image).convert_alpha(), (size_x, size_y))
+        self.image = transform.scale(image.load(player_image), (size_x, size_y))
         self.speed = Vector2(player_speed)
 
         #every sprite must have the rect property – the rectangle it is fitted in
@@ -59,9 +59,15 @@ class Boomerang(GameSprite):
     def update(self):
         self.rect.topleft += self.speed
         self.speed.x += 1
-        if self.rect.bottom < 0 or self.rect.right < 0 or self.rect.top > WIN_HEIGHT or self.rect.left > WIN_WIDTH:
+        if self.rect.bottom < 0 or self.rect.left > WIN_WIDTH:
             self.kill()
 
+class Boomerang2(GameSprite):
+    def update(self):
+        self.rect.topleft += self.speed
+        self.speed.x -= 1
+        if self.rect.bottom < 0 or self.rect.right < 0:
+            self.kill()
 
 class Enemy(GameSprite):
     def update(self):
@@ -71,11 +77,14 @@ class Enemy(GameSprite):
             self.rect.x = randint(0, WIN_WIDTH-(self.rect.width))
 
 def fire():
-    b = Bullet("spaceship.png", ship.rect.centerx - 8, ship.rect.centery-30, 16, 70, (0,-15))
+    b = Bullet("spaceship.png", ship.rect.centerx - 8, ship.rect.centery-30, 16, 70, (0,-40))
     bullets.add(b)
 
 def fireBoomer():
-    b = Boomerang("spaceship.png", ship.rect.centerx - 8, ship.rect.centery-30, 16, 70, (-25,-15))
+    b = Boomerang("boomer.png", ship.rect.centerx - 8, ship.rect.centery-30, 100, 100, (-25,-13))
+    bullets.add(b)
+def fireBoomer2():
+    b = Boomerang2("boomer.png", ship.rect.centerx - 8, ship.rect.centery-30, 100, 100, (25,-13))
     bullets.add(b)
     
 font.init()
@@ -94,7 +103,7 @@ bullets = sprite.Group()
 ship = Player(img_hero, 5, WIN_HEIGHT - 190, 80, 190, 10)
 enemies = sprite.Group()
 for _ in range(10):
-    e1 = Enemy(img_enemy, randint(0, WIN_WIDTH-30), WIN_HEIGHT - 0, 80, 80, randint(1,2))
+    e1 = Enemy(img_enemy, randint(0, WIN_WIDTH-30), WIN_HEIGHT - 0, 80, 80, randint(5,6))
     enemies.add(e1)
 
 finish = False
@@ -110,6 +119,8 @@ while run:
                 fire()
             if ev.key == K_z:
                 fireBoomer()
+            if ev.key == K_x:
+                fireBoomer2()
     if not finish:
         window.blit(background, (0, 0))
         
@@ -119,7 +130,7 @@ while run:
         
         hits = sprite.groupcollide(enemies, bullets, True, False)
         for hit in hits:
-            e1 = Enemy(img_enemy, randint(0, WIN_WIDTH-30), WIN_HEIGHT - 0, 80, 80, randint(1,2))
+            e1 = Enemy(img_enemy, randint(0, WIN_WIDTH-30), WIN_HEIGHT - 0, 80, 80, randint(5,6))
             enemies.add(e1)
             playerScore += 200
             playerScoreText.update_text("Score: " + str(playerScore))
@@ -127,7 +138,7 @@ while run:
 
         playerCollide = sprite.spritecollide(ship, enemies, True)
         for collide in playerCollide:
-            e1 = Enemy(img_enemy, randint(0, WIN_WIDTH-30), WIN_HEIGHT - 0, 80, 80, randint(1,2))
+            e1 = Enemy(img_enemy, randint(0, WIN_WIDTH-30), WIN_HEIGHT - 0, 80, 80, randint(5,6))
             enemies.add(e1)
             playerScore -= 5000
             playerScoreText.update_text("Score: " + str(playerScore))
@@ -139,7 +150,7 @@ while run:
         enemies.draw(window)
         ship.draw(window)
 
-        if playerScore >= 15000:
+        if playerScore >= 105000:
             finish = True
             finishTextWin.draw(window)
         
